@@ -1,0 +1,197 @@
+---
+title: "MSV Analysis Replication Notebook"
+output:
+  html_document:
+    self_contained: true
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(data.table)
+library(MASS)
+library(lmerTest)
+suppressPackageStartupMessages(library(here))
+
+options(scipen=999) # disable scientific
+```
+
+
+## set up & explanation ##
+
+This dataset includes metadata, multimodal features, and human annotation of Perceived Message Sensation Value (MSV). Specifically:
+
+1. video_id, timestamp, dimensions_height, dimensions_width, video_duration: the assigned ID for each video in the dataset, with the timestamp for published time, video dimensions (height and width), and video duration in seconds.
+2. view_count, like_count, comments_count: the number of views, likes, and comments.
+3. popularity: whether the video is created by a popular or ordinary account.
+4. alternative_medicine, climate_change, covid, election, gmo, health, russia_ukraine, vaccine: whether the video is about a specific topic or not.
+5. tempo, loudness, spec_centroid: audio features (tempo, loudness, sound brightness).
+6. brightness, saturation, entropy, warmness, shotc_ps, shotd_ps: visual features (brightness, saturation, visual complexity, warmness, shot count per second, shot duration per second).
+7. facec_ps, faced_ps, face_age, face_anger, face_disgust, face_fear, face_happiness, face_sadness, face_surprise: face features (face count per second, face duration per second, average face age, average facial expressions in anger, disgust, fear, happiness, sadness, and surprise).
+8. n_evaluation, perceived_msv: the number of human evaluation of perceived MSV for each video, and the average perceived MSV for each video.
+9. predicted_msv: predicted MSV using the computational measure of MSV.
+10. perceived_msv_high_ss, perceived_msv_low_ss: the average perceived MSV for each video among high sensation-seeking and low sensation-seeking participants.
+11. perceived_msv_high_age, perceived_msv_low_age: the average perceived MSV for each video among older and younger participants.
+
+```{r message=FALSE, warning=FALSE}
+df = fread(here("data/msv_df.csv"), data.table = F)
+```
+
+## Table S12 & Figure 2A ##
+```{r message=FALSE, warning=FALSE}
+model.1 = lm(perceived_msv ~ predicted_msv, data = df) # Table S12, Model 1
+model.2 = lm(perceived_msv ~ predicted_msv + timestamp + popularity + video_duration + alternative_medicine + climate_change + covid + election + gmo + health + russia_ukraine + vaccine, data = df) # Table S12, Model 2
+summary(model.1)
+summary(model.2)
+
+figure.2a = ggplot(df, aes(x=predicted_msv, y=perceived_msv)) + 
+  geom_point(color = "#1D4A80", alpha = .5) +
+  geom_smooth(method=lm, color="#FA7A06", se=TRUE) +
+  xlab("Computational MSV") + ylab("PMSV") + ggtitle(" ") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), aspect.ratio=0.9, legend.position = "none",
+        axis.title.y = element_text(size = 15), axis.title.x = element_text(size = 15),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"), panel.border = element_rect(colour = "black", fill=NA, size=1))
+figure.2a
+```
+
+## Table S13 ##
+```{r message=FALSE, warning=FALSE}
+df.ind = fread(here("data/msv_df_by_participant.csv"), data.table = F)
+df.ind$gender_female = ifelse(df.ind$gender == "Female", "Yes", "No")
+df.ind$race_white = ifelse(df.ind$race == "White or Caucasian", "Yes", "No")
+
+model.3 = lmerTest::lmer(perceived_msv ~ predicted_msv + (1|video_order) + (1|participant_id), data = df.ind)
+model.4 = lmerTest::lmer(perceived_msv ~ predicted_msv + age + gender_female + race_white + education + income + sen_seek + (1|video_order) + (1|participant_id), data = df.ind)
+summary(model.3)
+summary(model.4)
+```
+
+## Tables S14-S17 & Figure S1 ##
+```{r message=FALSE, warning=FALSE}
+model.9 = lm(perceived_msv_low_ss ~ predicted_msv, data = df) # Table S14, Model 1
+model.10 = lm(perceived_msv_low_ss ~ predicted_msv + timestamp + popularity + video_duration + alternative_medicine + climate_change + covid + election + gmo + health + russia_ukraine + vaccine, data = df) # Table S14, Model 2
+
+model.11 = lm(perceived_msv_high_ss ~ predicted_msv, data = df) # Table S15, Model 1
+model.12 = lm(perceived_msv_high_ss ~ predicted_msv + timestamp + popularity + video_duration + alternative_medicine + climate_change + covid + election + gmo + health + russia_ukraine + vaccine, data = df) # Table S15, Model 2
+
+model.13 = lm(perceived_msv_low_age ~ predicted_msv, data = df) # Table S16, Model 1
+model.14 = lm(perceived_msv_low_age ~ predicted_msv + timestamp + popularity + video_duration + alternative_medicine + climate_change + covid + election + gmo + health + russia_ukraine + vaccine, data = df) # Table S16, Model 2
+
+model.15 = lm(perceived_msv_high_age ~ predicted_msv, data = df) # Table S17, Model 1
+model.16 = lm(perceived_msv_high_age ~ predicted_msv + timestamp + popularity + video_duration + alternative_medicine + climate_change + covid + election + gmo + health + russia_ukraine + vaccine, data = df) # Table S17, Model 2
+summary(model.9)
+summary(model.10)
+summary(model.11)
+summary(model.12)
+summary(model.13)
+summary(model.14)
+summary(model.15)
+summary(model.16)
+
+figure.s1.df.1 = data.frame(predicted_msv = rep(df$predicted_msv, 2), perceived_msv = c(df$perceived_msv_low_ss, df$perceived_msv_high_ss),
+                           group = factor(rep(c("Low Sensation-seeker", "High Sensation-seeker"), each = nrow(df))))
+
+figure.s1.df.2 = data.frame(predicted_msv = rep(df$predicted_msv, 2), perceived_msv = c(df$perceived_msv_low_age, df$perceived_msv_high_age),
+                           group = factor(rep(c("Younger", "Older"), each = nrow(df))))
+
+figure.s1a = ggplot(figure.s1.df.1, aes(x=predicted_msv, y=perceived_msv, color = group)) + 
+  geom_point(alpha = .3) + geom_smooth(method="lm", se=TRUE) +
+  scale_color_manual(values = c("Low Sensation-seeker" = "#3182bd", "High Sensation-seeker" = "#e6550d"), guide = guide_legend(override.aes = list(fill = "transparent"))) +
+  xlab("Computational MSV") + ylab("PMSV") + ggtitle(" ") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), aspect.ratio=0.9, legend.position = c(0.8, 0.1),
+        axis.title.y = element_text(size = 15), axis.title.x = element_text(size = 15),
+        legend.background = element_rect(fill = "transparent", color = NA), legend.key = element_rect(fill = "transparent", color = NA),
+        legend.title = element_blank(), panel.background = element_blank(), 
+        axis.line = element_line(colour = "black"), panel.border = element_rect(colour = "black", fill=NA, size=1))
+figure.s1a
+```
+
+```{r message=FALSE, warning=FALSE}
+figure.s1b = ggplot(figure.s1.df.2, aes(x=predicted_msv, y=perceived_msv, color = group)) + 
+  geom_point(alpha = .3) + geom_smooth(method="lm", se=TRUE) +
+  scale_color_manual(values = c("Younger" = "#3182bd", "Older" = "#e6550d"), guide = guide_legend(override.aes = list(fill = "transparent"))) +
+  xlab("Computational MSV") + ylab("PMSV") + ggtitle(" ") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), aspect.ratio=0.9, legend.position = c(0.1, 0.9),
+        axis.title.y = element_text(size = 15), axis.title.x = element_text(size = 15),
+        legend.background = element_rect(fill = "transparent", color = NA), legend.key = element_rect(fill = "transparent", color = NA),
+        legend.title = element_blank(), panel.background = element_blank(), 
+        axis.line = element_line(colour = "black"), panel.border = element_rect(colour = "black", fill=NA, size=1))
+figure.s1b
+```
+
+## Tables S18-S19 & Figure 2B ##
+```{r message=FALSE, warning=FALSE}
+df$engagement = rowSums(df[,c("view_count", "likes_count", "comments_count")], na.rm = T)/10000
+
+# linear terms
+model.5 = glm.nb(engagement ~ predicted_msv, data = df) # Table S18, Model 1
+model.6 = glm.nb(engagement ~ predicted_msv + timestamp + popularity + video_duration + alternative_medicine + climate_change + covid + election + gmo + health + russia_ukraine + vaccine, data = df) # Table S18, Model 2
+
+# polynomial terms
+model.7 = glm.nb(engagement ~ poly(predicted_msv, 2, raw = T), data = df) # Table S19, Model 1
+model.8 = glm.nb(engagement ~ poly(predicted_msv, 2, raw = T) + timestamp + popularity + video_duration + alternative_medicine + climate_change + covid + election + gmo + health + russia_ukraine + vaccine, data = df) # Table S19, Model 2
+
+summary(model.5)
+summary(model.6)
+summary(model.7)
+summary(model.8)
+
+model_7_func <- function(x) {exp(-1.08*(x^2) + 7.25*x - 7.71)}
+
+figure.2b = ggplot(df[which(df$engagement < 200),], aes(x=predicted_msv, y=engagement)) + 
+  geom_point(color = "#1D4A80", alpha = .5) +
+  stat_function(fun = model_7_func, color = "#FA7A06", size = 1) +
+  geom_text(aes(x = 3.36 - 0.15, y = -5, label = "3.36"), color = "#FA7A06", size = 4) +
+  geom_vline(xintercept=3.36, linetype="dashed", color = "#FA7A06", size = 0.5) +
+  xlab("Computational MSV") + ylab("Video Engagement (divided by 10,000)") + ggtitle(" ") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), aspect.ratio=0.9, legend.position = "none",
+        axis.title.y = element_text(size = 15), axis.title.x = element_text(size = 15),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"), panel.border = element_rect(colour = "black", fill=NA, size=1))
+figure.2b
+```
+
+## Tables S22 & Figure 2C & 2D ##
+```{r message=FALSE, warning=FALSE}
+test.1 = fread(here("data/msv_testset_science.csv"), data.table = F)
+test.1$engagement = rowSums(test.1[,c("view_count", "likes_count", "comments_count")], na.rm = T)/10000
+
+test.2 = fread(here("data/msv_testset_kid.csv"), data.table = F)
+test.2$engagement = rowSums(test.2[,c("view_count", "likes_count", "comments_count")], na.rm = T)/10000
+
+model.t11 = glm.nb(engagement ~ poly(predicted_msv, 2, raw = T), data = test.1) # used for Figure 2c
+model.t12 = glm.nb(engagement ~ poly(predicted_msv, 2, raw = T) + timestamp + video_duration, data = test.1) # Table S20, Dataset 1
+summary(model.t11)
+summary(model.t12)
+
+model.t21 = glm.nb(engagement ~ poly(predicted_msv, 2, raw = T), data = test.2) # used for Figure 2d
+model.t22 = glm.nb(engagement ~ poly(predicted_msv, 2, raw = T) + timestamp + video_duration, data = test.2) # Table S20, Dataset 2
+summary(model.t21)
+summary(model.t22)
+
+model_t11_func <- function(x) {exp(-5.86*(x^2) + 38.35*x - 62.39)}
+figure.2c = ggplot(test.1, aes(x=predicted_msv, y=engagement)) + 
+  geom_point(color = "#1D4A80", alpha = .3, size = 0.5) +
+  stat_function(fun = model_t11_func, color = "#FA7A06", size = 1) +
+  geom_text(aes(x = 3.27 + 0.1, y = 0.1, label = "3.27"), color = "#FA7A06", size = 3.5) +
+  geom_vline(xintercept=3.27, linetype="dashed", color = "#FA7A06", size = 0.5) + ylim(0, 3) +
+  xlab("Computational MSV") + ylab("Video Engagement (divided by 10,000)") + ggtitle(" ") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), aspect.ratio=0.9, legend.position = "none",
+        axis.title.y = element_text(size = 15), axis.title.x = element_text(size = 15),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"), panel.border = element_rect(colour = "black", fill=NA, size=1))
+figure.2c
+```
+
+```{r message=FALSE, warning=FALSE}
+model_t21_func <- function(x) {exp(-3.82*(x^2) + 24.20*x -30.15)}
+figure.2d = ggplot(test.2, aes(x=predicted_msv, y=engagement)) + 
+  geom_point(color = "#1D4A80", alpha = .5) +
+  stat_function(fun = model_t21_func, color = "#FA7A06", size = 1) +
+  geom_text(aes(x = 3.17 - 0.05, y = 9.5, label = "3.17"), color = "#FA7A06", size = 4) +
+  geom_vline(xintercept=3.17, linetype="dashed", color = "#FA7A06", size = 0.5) + ylim(0, 15000) +
+  xlab("Computational MSV") + ylab("Video Engagement (divided by 10,000)") + ggtitle(" ") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), aspect.ratio=0.9, legend.position = "none",
+        axis.title.y = element_text(size = 15), axis.title.x = element_text(size = 15),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"), panel.border = element_rect(colour = "black", fill=NA, size=1))
+figure.2d
+```
+
+
