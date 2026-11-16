@@ -21,24 +21,45 @@ def hedges_g(a: np.ndarray, b: np.ndarray) -> float:
     return float(j * (a.mean() - b.mean()) / sp)
 
 
-def _hedges_g_rows(A: np.ndarray, B: np.ndarray) -> np.ndarray:
-    """Vectorized g over bootstrap rows (each row is one resample)."""
-    na, nb = A.shape[1], B.shape[1]
-    sp = np.sqrt(((na - 1) * A.var(axis=1, ddof=1) + (nb - 1) * B.var(axis=1, ddof=1)) / (na + nb - 2))
-    j = 1 - 3 / (4 * (na + nb) - 9)
-    with np.errstate(divide="ignore", invalid="ignore"):
-        g = j * (A.mean(axis=1) - B.mean(axis=1)) / sp
-    return np.where(sp == 0, 0.0, g)
+def _boot_weights(n: int, n_boot: int, rng: np.random.Generator) -> np.ndarray:
+    """Resample counts: row r says how often each observation appears in bootstrap sample r."""
+    idx = rng.integers(0, n, size=(n_boot, n))
+    flat = (idx + (np.arange(n_boot) * n)[:, None]).ravel()
+    return np.bincount(flat, minlength=n_boot * n).reshape(n_boot, n).astype(np.float64)
 
 
-def hedges_g_ci(a: np.ndarray, b: np.ndarray, n_boot: int = N_BOOT, seed: int = 0) -> tuple[float, float, float]:
+def _boot_mean_var(x: np.ndarray, w: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    n = len(x)
+    m = w @ x / n
+    m2 = w @ (x * x) / n
+    var = np.maximum(m2 - m * m, 0.0) * n / (n - 1)
+    return m, var
+
+
+def _weights(na: int, nb: int, n_boot: int, seed: int, cache: dict | None):
+    key = (na, nb, n_boot, seed)
+    if cache is not None and key in cache:
+        return cache[key]
+    rng = np.random.default_rng(seed)
+    w = (_boot_weights(na, n_boot, rng), _boot_weights(nb, n_boot, rng))
+    if cache is not None:
+        cache[key] = w
+    return w
+
+
+def hedges_g_ci(a: np.ndarray, b: np.ndarray, n_boot: int = N_BOOT, seed: int = 0, cache: dict | None = None) -> tuple[float, float, float]:
     g = hedges_g(a, b)
     if np.isnan(g):
         return g, float("nan"), float("nan")
-    rng = np.random.default_rng(seed)
-    A = a[rng.integers(0, len(a), size=(n_boot, len(a)))]
-    B = b[rng.integers(0, len(b), size=(n_boot, len(b)))]
-    gs = _hedges_g_rows(A, B)
+    # Same seed => same resamples for every attribute with the same group sizes; the cache only skips regenerating them.
+    wa, wb = _weights(len(a), len(b), n_boot, seed, cache)
+    ma, va = _boot_mean_var(a, wa)
+    mb, vb = _boot_mean_var(b, wb)
+    na, nb = len(a), len(b)
+    sp = np.sqrt(((na - 1) * va + (nb - 1) * vb) / (na + nb - 2))
+    j = 1 - 3 / (4 * (na + nb) - 9)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        gs = np.where(sp == 0, 0.0, j * (ma - mb) / sp)
     lo, hi = np.nanpercentile(gs, [2.5, 97.5])
     return g, float(lo), float(hi)
 
@@ -56,13 +77,14 @@ def compare_groups(df: pd.DataFrame, ids_a: list[str], ids_b: list[str]) -> dict
     b = df.loc[df.index.intersection(ids_b)]
     small = len(a) < SMALL_N or len(b) < SMALL_N
     numeric = []
+    cache: dict = {}
     for key, (label, unit, source) in NUMERIC_ATTRS.items():
         if key not in df:
             continue
         va, vb = a[key].to_numpy(float), b[key].to_numpy(float)
         ma, mb = ~np.isnan(va), ~np.isnan(vb)
         va, vb = va[ma], vb[mb]
-        g, lo, hi = hedges_g_ci(va, vb) if len(va) >= 2 and len(vb) >= 2 else (float("nan"),) * 3
+        g, lo, hi = hedges_g_ci(va, vb, cache=cache) if len(va) >= 2 and len(vb) >= 2 else (float("nan"),) * 3
         col = df[key].dropna()
         numeric.append({
             "key": key, "label": label, "unit": unit, "source": source,

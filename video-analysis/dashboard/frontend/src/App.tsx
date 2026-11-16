@@ -4,6 +4,7 @@ import { DataProvider, StateProvider, useDispatch, type Data } from "./state";
 import css from "./App.module.css";
 import { Attributes } from "./views/Attributes";
 import { BottomTabs } from "./views/BottomTabs";
+import { Different } from "./views/Different";
 import { Header } from "./views/Header";
 import { Insights } from "./views/Insights";
 import { PredVsActual } from "./views/PredVsActual";
@@ -38,7 +39,7 @@ function Layout() {
         <div className={css.bottom}>
           <BottomTabs
             views={{
-              different: <div className={css.todo}>What's different here? (next milestone)</div>,
+              different: <Different />,
               attributes: <Attributes />,
               experiments: <div className={css.todo}>Experiments (next milestone)</div>,
             }}
