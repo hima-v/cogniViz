@@ -1,0 +1,35 @@
+# Paths are relative to `root`. Nothing under data/, pmsv_windows/ or the Box folder is ever written.
+root: C:/dev
+sources:
+  share_csv: video-analysis/data/msv_df_share.csv
+  features_csv: video-analysis/data/pmsv_dataset.csv
+  imputed_csv: msv-rf-repro/data/msv_df_imputed.csv
+pipeline:
+  out_dir: video-analysis/pmsv_windows/out
+  inventory: video-analysis/pmsv_windows/out/inventory.csv
+  bins_dir: video-analysis/pmsv_windows/out/bins
+  events_dir: video-analysis/pmsv_windows/out/events
+  features_dir: video-analysis/pmsv_windows/out/features
+  rf_comparison: video-analysis/pmsv_windows/out/rf_comparison.csv
+  rf_controls:
+    - {file: video-analysis/pmsv_windows/out/rf_controls.csv, seed: 0}
+    - {file: video-analysis/pmsv_windows/out/rf_controls_seed1.csv, seed: 1}
+    - {file: video-analysis/pmsv_windows/out/rf_controls_seed2.csv, seed: 2}
+  validate_whole_output: video-analysis/pmsv_windows/out/validate_whole.csv
+videos_dir: C:/Users/hima2/Box/Video Data Analytics Reels Data
+# Generated artifacts (gitignored)
+data_dir: video-analysis/dashboard/backend/data
+cors_origins: ["http://localhost:5173", "http://127.0.0.1:5173"]
+# Column roles in the share CSV
+columns:
+  key: survey_batch_id
+  target: msv_m
+  target_sd: msv_sd
+  n_raters: n
+  issue: sampled_cat
+  account_type: type
+  account: ownerUsername
+  # Bin columns found in M0; tempo is per-video (events json) and shot changes come from events.cuts
+  bin_features: [brightness, saturation, warmness, entropy, loudness, spec_centroid]
+model:
+  features: [tempo, loudness, spec_centroid, brightness, saturation, entropy, warmness, facec_ps, shotc_ps, faced_ps, shotd_ps]
