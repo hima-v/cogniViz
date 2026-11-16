@@ -158,3 +158,9 @@
   font-size: 11px;
   fill: #333;
 }
+.btnActive:hover {
+  background: #111;
+}
+.btn {
+  white-space: nowrap;
+}

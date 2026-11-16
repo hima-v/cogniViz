@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { fetchExperiments, fetchInsights, fetchMeta, fetchVideos } from "./api";
 import { DataProvider, StateProvider, useDispatch, type Data } from "./state";
 import css from "./App.module.css";
+import { Attributes } from "./views/Attributes";
+import { BottomTabs } from "./views/BottomTabs";
 import { Header } from "./views/Header";
+import { Insights } from "./views/Insights";
 import { PredVsActual } from "./views/PredVsActual";
 import { Projection } from "./views/Projection";
 
@@ -20,7 +23,9 @@ function Layout() {
     <div className={css.app}>
       <Header />
       <main className={css.grid}>
-        <div className={css.insights} />
+        <div className={css.insights}>
+          <Insights />
+        </div>
         <div className={css.projection}>
           <Projection />
         </div>
@@ -30,7 +35,15 @@ function Layout() {
         <div className={css.clusters} />
         <div className={css.detail} />
         <div className={css.samples} />
-        <div className={css.bottom} />
+        <div className={css.bottom}>
+          <BottomTabs
+            views={{
+              different: <div className={css.todo}>What's different here? (next milestone)</div>,
+              attributes: <Attributes />,
+              experiments: <div className={css.todo}>Experiments (next milestone)</div>,
+            }}
+          />
+        </div>
       </main>
     </div>
   );

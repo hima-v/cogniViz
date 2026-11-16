@@ -1,0 +1,62 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 2px 8px 8px;
+}
+.card {
+  border: 1px solid #e3e3e3;
+  border-radius: 5px;
+  padding: 6px 8px;
+  background: #fff;
+}
+.active {
+  border-color: #333;
+  box-shadow: inset 3px 0 0 #333;
+}
+.title {
+  font-size: 12.5px;
+  margin: 0 0 2px;
+}
+.finding {
+  font-size: 12px;
+  margin: 0 0 3px;
+  line-height: 1.35;
+}
+.meta {
+  font-size: 10.5px;
+  color: #777;
+}
+.method {
+  font-size: 10.5px;
+  color: #666;
+  margin-top: 2px;
+}
+.method summary {
+  cursor: pointer;
+}
+.foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 6px;
+  margin-top: 4px;
+}
+.sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+.srcTag {
+  font: inherit;
+  font-size: 10px;
+  color: #555;
+  background: #f1f1f1;
+  border: 0;
+  border-radius: 3px;
+  padding: 1px 5px;
+  cursor: pointer;
+}
+.srcTag:hover {
+  background: #e2e2e2;
+}
