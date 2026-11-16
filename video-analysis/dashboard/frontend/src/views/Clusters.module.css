@@ -1,0 +1,51 @@
+.table {
+  border-collapse: collapse;
+  font-size: 11.5px;
+  margin: 0 2px;
+}
+.table th {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #555;
+  text-align: left;
+  vertical-align: bottom;
+  padding: 0 4px 2px;
+  border-bottom: 1px solid #ddd;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 1;
+}
+.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+.sortable:hover {
+  color: #111;
+}
+.table td {
+  padding: 2px 3px;
+  border-bottom: 1px solid #f2f2f2;
+  vertical-align: middle;
+}
+.table tbody tr {
+  cursor: pointer;
+}
+.table tbody tr:hover,
+.hot {
+  background: #f1f1f1;
+}
+.table tbody tr:focus-visible {
+  outline: 2px solid #333;
+}
+.labelCell {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  min-width: 110px;
+  max-width: 128px;
+  line-height: 1.2;
+}
+.num {
+  text-align: right;
+}

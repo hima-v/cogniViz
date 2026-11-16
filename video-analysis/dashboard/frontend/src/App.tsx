@@ -4,6 +4,7 @@ import { DataProvider, StateProvider, useDispatch, type Data } from "./state";
 import css from "./App.module.css";
 import { Attributes } from "./views/Attributes";
 import { BottomTabs } from "./views/BottomTabs";
+import { Clusters } from "./views/Clusters";
 import { Different } from "./views/Different";
 import { Header } from "./views/Header";
 import { Insights } from "./views/Insights";
@@ -33,7 +34,9 @@ function Layout() {
         <div className={css.pva}>
           <PredVsActual />
         </div>
-        <div className={css.clusters} />
+        <div className={css.clusters}>
+          <Clusters />
+        </div>
         <div className={css.detail} />
         <div className={css.samples} />
         <div className={css.bottom}>

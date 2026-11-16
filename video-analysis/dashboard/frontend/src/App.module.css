@@ -11,7 +11,7 @@
   display: grid;
   gap: 6px;
   padding: 6px;
-  grid-template-columns: 270px minmax(480px, 1fr) 380px 380px;
+  grid-template-columns: 260px minmax(440px, 1fr) 480px 350px;
   grid-template-rows: minmax(300px, 1.2fr) minmax(200px, 0.8fr) 150px minmax(260px, 1fr);
   grid-template-areas:
     "insights projection pva      detail"
