@@ -49,11 +49,3 @@
 .bottom {
   grid-area: bottom;
 }
-.todo {
-  padding: 16px;
-  color: #888;
-  font-size: 13px;
-  background: #fff;
-  border: 1px solid #e2e2e2;
-  flex: 1;
-}

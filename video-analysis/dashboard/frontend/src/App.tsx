@@ -7,6 +7,7 @@ import { BottomTabs } from "./views/BottomTabs";
 import { Clusters } from "./views/Clusters";
 import { Detail } from "./views/Detail";
 import { Different } from "./views/Different";
+import { Experiments } from "./views/Experiments";
 import { Header } from "./views/Header";
 import { Insights } from "./views/Insights";
 import { Samples } from "./views/Samples";
@@ -50,7 +51,7 @@ function Layout() {
             views={{
               different: <Different />,
               attributes: <Attributes />,
-              experiments: <div className={css.todo}>Experiments (next milestone)</div>,
+              experiments: <Experiments />,
             }}
           />
         </div>
