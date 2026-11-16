@@ -8,6 +8,7 @@ import { Clusters } from "./views/Clusters";
 import { Different } from "./views/Different";
 import { Header } from "./views/Header";
 import { Insights } from "./views/Insights";
+import { Samples } from "./views/Samples";
 import { PredVsActual } from "./views/PredVsActual";
 import { Projection } from "./views/Projection";
 
@@ -38,7 +39,9 @@ function Layout() {
           <Clusters />
         </div>
         <div className={css.detail} />
-        <div className={css.samples} />
+        <div className={css.samples}>
+          <Samples />
+        </div>
         <div className={css.bottom}>
           <BottomTabs
             views={{
