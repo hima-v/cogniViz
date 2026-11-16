@@ -71,7 +71,7 @@ export function Clusters() {
         <SourceLine
           parts={[
             { id: "our_analysis", text: "our k-means clusters" },
-            { id: "authors_features", text: "on authors' features (all 1,200 videos)" },
+            { id: "authors_features", text: "authors' features they are fit on (all 1,200 videos)" },
           ]}
         />
       }

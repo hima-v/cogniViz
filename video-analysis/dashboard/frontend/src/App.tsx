@@ -11,6 +11,7 @@ import { Experiments } from "./views/Experiments";
 import { Header } from "./views/Header";
 import { Insights } from "./views/Insights";
 import { Samples } from "./views/Samples";
+import { ProvenancePanel } from "./views/Provenance";
 import { PredVsActual } from "./views/PredVsActual";
 import { Projection } from "./views/Projection";
 
@@ -56,6 +57,7 @@ function Layout() {
           />
         </div>
       </main>
+      <ProvenancePanel />
     </div>
   );
 }

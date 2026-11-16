@@ -75,6 +75,13 @@ export function Detail() {
           <Body v={v} d={detail} />
         )}
       </div>
+      <SourceLine
+        parts={[
+          { id: "authors_meta", text: "mixed, labeled per section: authors' metadata, ratings and features" },
+          { id: "our_features", text: "timeline from our features" },
+        ]}
+        coverage="timeline for 960 videos"
+      />
     </section>
   );
 }
