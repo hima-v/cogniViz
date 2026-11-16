@@ -454,7 +454,7 @@ def details(s: pd.DataFrame, item_median: dict):
         d = {
             "id": vid, "items": {i: {"m": _n(r[f"{i}_m"]), "sd": _n(r[f"{i}_sd"])} for i in L.ITEM_LABELS},
             "dimensions": {k: {"m": _n(r[c]), "sd": _n(r[sd])} for k, (c, sd, _) in L.DIMENSIONS.items()},
-            "caption": _s(r["caption"]), "transcript": r["transcript_clean"], "first_comment": _s(r["firstComment"]),
+            "caption": _s(r["caption"]), "transcript": _s(r["transcript_clean"]), "first_comment": _s(r["firstComment"]),
             "url": _s(r["url"]), "tags": r["tags"], "account": _s(r["ownerUsername"]), "posted": _s(r["posted"]),
             "views": _n(r["videoViewCount"]), "likes": _n(r["likesCount"]), "comments": _n(r["commentsCount"]),
             "face": {"n_faces_avg": _n(r["face_num_avg"]), "age_avg": _n(r["face_age_avg"]), "female_share": _n(r["face_female"]),
@@ -475,7 +475,7 @@ def details(s: pd.DataFrame, item_median: dict):
                 edges = np.array(d["bins"]["t_start"] + [d["bins"]["t_end"][-1]])
                 cnt, _ = np.histogram(e.get("cuts") or [], bins=edges)
                 d["bins"]["features"]["shot_changes"] = cnt.astype(int).tolist()
-        (DETAILS_DIR / f"{vid}.json").write_text(json.dumps(d))
+        (DETAILS_DIR / f"{vid}.json").write_text(json.dumps(d, allow_nan=False))
 
 
 def _n(x):
@@ -550,7 +550,7 @@ def main():
     }
 
     def dump(name, obj):
-        (DATA_DIR / name).write_text(json.dumps(obj, default=_json_default))
+        (DATA_DIR / name).write_text(json.dumps(obj, default=_json_default, allow_nan=False))
 
     dump("videos.json", recs)
     dump("meta.json", meta)

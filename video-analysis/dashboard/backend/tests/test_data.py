@@ -104,3 +104,14 @@ def test_details_written(videos):
     assert len(list(DETAILS_DIR.glob("*.json"))) == 1200
     d = json.loads((DETAILS_DIR / "10_1.json").read_text(encoding="utf-8"))
     assert len(d["items"]) == 17 and d["bins"] is not None and "shot_changes" in d["bins"]["features"]
+
+
+def _reject_constant(name):
+    raise ValueError(f"non-JSON constant {name}")
+
+
+def test_all_json_is_strict():
+    # NaN/Infinity would make the API fail to encode the response
+    files = list(DETAILS_DIR.glob("*.json")) + list(DATA_DIR.glob("*.json"))
+    for p in files:
+        json.loads(p.read_text(encoding="utf-8"), parse_constant=_reject_constant)

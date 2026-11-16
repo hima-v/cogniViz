@@ -5,6 +5,7 @@ import css from "./App.module.css";
 import { Attributes } from "./views/Attributes";
 import { BottomTabs } from "./views/BottomTabs";
 import { Clusters } from "./views/Clusters";
+import { Detail } from "./views/Detail";
 import { Different } from "./views/Different";
 import { Header } from "./views/Header";
 import { Insights } from "./views/Insights";
@@ -38,7 +39,9 @@ function Layout() {
         <div className={css.clusters}>
           <Clusters />
         </div>
-        <div className={css.detail} />
+        <div className={css.detail}>
+          <Detail />
+        </div>
         <div className={css.samples}>
           <Samples />
         </div>
