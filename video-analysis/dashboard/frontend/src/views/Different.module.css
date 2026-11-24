@@ -41,13 +41,22 @@
   padding-bottom: 2px;
   border-bottom: 1px solid #eee;
 }
-.gaxis {
-  margin-right: auto;
-  margin-left: 12px;
+.stickyHead {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 2;
+}
+.axisRow {
+  cursor: default;
+  border-bottom: 1px solid #eee;
+}
+.axisRow:hover {
+  background: none;
 }
 .row {
   display: grid;
-  grid-template-columns: 200px auto auto 1fr;
+  grid-template-columns: 200px auto auto minmax(0, 1fr);
   align-items: center;
   gap: 6px;
   width: 100%;
@@ -83,6 +92,10 @@
   font-size: 11px;
   color: #555;
   white-space: nowrap;
+}
+.row .num {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .cat {
   padding: 3px 0 5px;

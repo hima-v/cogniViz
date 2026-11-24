@@ -81,7 +81,7 @@ export function Different() {
   } else if (!res) {
     body = <div className={ui.empty}>Comparing…</div>;
   } else {
-    body = <Results res={res} openAttr={openAttr} />;
+    body = <Results res={res} openAttr={openAttr} aLabel={pinned ? "group A" : "selection"} bLabel={pinned ? "group B" : "rest"} />;
   }
 
   return (
@@ -128,13 +128,15 @@ export function Different() {
   );
 }
 
-function Results({ res, openAttr }: { res: CompareResult; openAttr: (k: string) => void }) {
+function Results({ res, openAttr, aLabel, bLabel }: { res: CompareResult; openAttr: (k: string) => void; aLabel: string; bLabel: string }) {
   return (
     <div className={`${css.cols} ${res.small_group ? css.gray : ""}`}>
       <div>
-        <div className={css.sectionHead}>
-          <span>Numeric attributes (sorted by |g|)</span>
-          <GAxis />
+        <div className={css.stickyHead}>
+          <div className={css.sectionHead}>
+            <span>Numeric attributes (sorted by |g|)</span>
+          </div>
+          <AxisRow aLabel={aLabel} bLabel={bLabel} />
         </div>
         {res.numeric.map((r) => (
           <NumRow key={r.key} r={r} onClick={() => openAttr(r.key)} />
@@ -153,28 +155,46 @@ function Results({ res, openAttr }: { res: CompareResult; openAttr: (k: string) 
 }
 
 const BAR_W = 180;
+const PAD = 14; // room for the end tick labels, shared by the axis and the bars so both use the same x positions
 const gx = d3.scaleLinear().domain([-G_MAX, G_MAX]).range([0, BAR_W]).clamp(true);
 
-function GAxis() {
+function AxisRow({ aLabel, bLabel }: { aLabel: string; bLabel: string }) {
   return (
-    <svg width={BAR_W + 8} height={22} className={css.gaxis}>
-      <g transform="translate(4,0)">
-        {[-1.5, -1, -0.5, 0, 0.5, 1, 1.5].map((t) => (
-          <g key={t} transform={`translate(${gx(t)},0)`}>
-            <line y1={13} y2={17} stroke="#999" />
-            <text y={10} fontSize={9} textAnchor="middle" fill="#666">
-              {t}
-            </text>
-          </g>
-        ))}
-        <text x={0} y={22} fontSize={8.5} fill="#888">
-          lower in group A
+    <div className={`${css.row} ${css.axisRow}`} aria-hidden="true">
+      <span />
+      <svg width={BAR_W + 2 * PAD} height={42}>
+        <g transform={`translate(${PAD},0)`}>
+          {[-1.5, -1, -0.5, 0, 0.5, 1, 1.5].map((t) => (
+            <g key={t} transform={`translate(${gx(t)},0)`}>
+              <line y1={12} y2={16} stroke="#999" />
+              <text y={9} fontSize={9} textAnchor="middle" fill="#666">
+                {fmt(t, 1)}
+              </text>
+            </g>
+          ))}
+          <text x={BAR_W / 2} y={28} fontSize={9.5} textAnchor="middle" fill="#333">
+            Difference from the {bLabel === "rest" ? "rest" : "group B"} (Hedges' g)
+          </text>
+          <text x={0} y={39} fontSize={8.5} fill="#888">
+            ← lower in {aLabel}
+          </text>
+          <text x={BAR_W} y={39} fontSize={8.5} fill="#888" textAnchor="end">
+            higher →
+          </text>
+        </g>
+      </svg>
+      <svg width={100} height={42}>
+        <circle cx={9} cy={13} r={3} fill="#111" />
+        <text x={16} y={16} fontSize={9.5} fill="#444">
+          {aLabel} mean
         </text>
-        <text x={BAR_W} y={22} fontSize={8.5} fill="#888" textAnchor="end">
-          higher
+        <circle cx={9} cy={28} r={3.5} fill="#fff" stroke="#333" />
+        <text x={16} y={31} fontSize={9.5} fill="#444">
+          {bLabel} mean
         </text>
-      </g>
-    </svg>
+      </svg>
+      <span />
+    </div>
   );
 }
 
@@ -191,8 +211,8 @@ function NumRow({ r, onClick }: { r: NumericCompare; onClick: () => void }) {
         {r.label}
         <span className={css.tag}>{SOURCE_TAG[r.source] ?? r.source}</span>
       </span>
-      <svg width={BAR_W + 8} height={16}>
-        <g transform="translate(4,0)">
+      <svg width={BAR_W + 2 * PAD} height={16}>
+        <g transform={`translate(${PAD},0)`}>
           <line x1={gx(0)} x2={gx(0)} y1={0} y2={16} stroke="#bbb" />
           {has && (
             <>
@@ -212,7 +232,7 @@ function NumRow({ r, onClick }: { r: NumericCompare; onClick: () => void }) {
         </g>
       </svg>
       <span className={css.num}>
-        g {fmt(r.g)} [{fmt(r.g_lo)}, {fmt(r.g_hi)}] · means {fmtVal(r.mean_a)} vs {fmtVal(r.mean_b)} · n {r.n_a}/{r.n_b}
+        g {fmt(r.g)} [{fmt(r.g_lo)}, {fmt(r.g_hi)}] · means {fmtVal(r.mean_a)} vs {fmtVal(r.mean_b)} · <span style={{ whiteSpace: "nowrap" }}>n {r.n_a}/{r.n_b}</span>
         {miss > 0 && <span className={ui.warn}> · {miss} missing</span>}
       </span>
     </button>
