@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { ui } from "../components/ui";
-import { ISSUE_ORDER, fmt, issueColor } from "../encodings";
+import { ISSUE_ORDER, fmt, imputedSummary, issueColor } from "../encodings";
 import { DEFAULT_FILTERS, useAppState, useData, useDispatch } from "../state";
 import type { Filters } from "../types";
 import css from "./Header.module.css";
@@ -112,7 +112,7 @@ export function Header() {
           <option value="yes">Speech detected</option>
           <option value="no">No speech</option>
         </select>
-        <label className={ui.label} title={`${meta.null_roles.no_face.n} no-face and ${meta.null_roles.silent.n} silent videos have imputed feature values`}>
+        <label className={ui.label} title={imputedSummary(videos)}>
           <input type="checkbox" checked={f.hideImputed} onChange={(e) => setF({ hideImputed: e.target.checked })} />
           Hide imputed
         </label>

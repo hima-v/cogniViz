@@ -1,13 +1,13 @@
 import { useEffect, useRef } from "react";
 import { ui } from "../components/ui";
-import { fmt } from "../encodings";
+import { fmt, imputedSummary } from "../encodings";
 import { useAppState, useData, useDispatch } from "../state";
 import css from "./Provenance.module.css";
 
 export function ProvenancePanel() {
   const { provenanceOpen } = useAppState();
   const dispatch = useDispatch();
-  const { meta } = useData();
+  const { meta, videos } = useData();
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -107,9 +107,8 @@ export function ProvenancePanel() {
         </p>
         <h3>Missing and imputed values</h3>
         <p className={css.note}>
-          {meta.null_roles.no_face.n} videos have no detected faces (face time undefined) and {meta.null_roles.silent.n} have no audio track (audio features
-          undefined). The model input fills these with imputed values; the dashboard flags them, leaves them out of attribute plots and comparisons, and can hide
-          them. {meta.null_roles.likes_missing.n} videos lack like counts (left out of engagement), {meta.null_roles.no_speech.n} have no transcript, and{" "}
+          {imputedSummary(videos)}. Face time is undefined without faces and audio features are undefined without sound; the model input fills these
+          with imputed values. The dashboard flags them, leaves them out of attribute plots and comparisons, and can hide them. {meta.null_roles.likes_missing.n} videos lack like counts (left out of engagement), {meta.null_roles.no_speech.n} have no transcript, and{" "}
           {meta.null_roles.face_pp_missing.n} lack Face++ attributes. Generated {meta.generated}.
         </p>
       </div>

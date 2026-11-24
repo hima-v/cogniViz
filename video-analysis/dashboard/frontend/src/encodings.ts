@@ -42,6 +42,15 @@ export const IMPUTED_LABELS: Record<string, string> = {
 };
 export const SPEECH_COLORS: Record<string, string> = { yes: "#009E73", no: "#CC79A7" };
 
+/** One wording for imputed values everywhere, with counts computed from the loaded videos. */
+export function imputedSummary(videos: Video[]): string {
+  const any = videos.filter((v) => v.imputed).length;
+  const noFace = videos.filter((v) => v.no_face).length;
+  const silent = videos.filter((v) => v.silent).length;
+  const both = videos.filter((v) => v.no_face && v.silent).length;
+  return `${any} videos have imputed values: ${noFace} without faces and ${silent} silent (${both} are both)`;
+}
+
 export const imputedClass = (v: Video) => (v.no_face && v.silent ? "both" : v.no_face ? "no_face" : v.silent ? "silent" : "complete");
 
 export const SELECT_DIM = "#c8c8c8";
