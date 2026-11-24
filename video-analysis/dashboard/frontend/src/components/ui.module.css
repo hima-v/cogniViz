@@ -1,0 +1,166 @@
+.panel {
+  background: #fff;
+  border: 1px solid #e2e2e2;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.panelHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px 4px;
+  flex-wrap: wrap;
+}
+.panelTitle {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0;
+  color: #222;
+  margin-right: auto;
+}
+.panelBody {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+.scrollBody {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  position: relative;
+}
+.source {
+  font-size: 11px;
+  color: #777;
+  padding: 3px 10px 5px;
+  border-top: 1px solid #f0f0f0;
+  cursor: pointer;
+  background: none;
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+  text-align: left;
+  font-family: inherit;
+}
+.source:hover {
+  color: #333;
+  text-decoration: underline;
+}
+.source:focus-visible,
+.btn:focus-visible,
+.select:focus-visible {
+  outline: 2px solid #333;
+  outline-offset: 1px;
+}
+.caption {
+  font-size: 11px;
+  color: #666;
+  padding: 2px 10px 4px;
+  line-height: 1.35;
+}
+.btn {
+  font: inherit;
+  font-size: 12px;
+  padding: 2px 8px;
+  border: 1px solid #c4c4c4;
+  background: #f7f7f7;
+  border-radius: 4px;
+  color: #222;
+  cursor: pointer;
+}
+.btn:hover {
+  background: #ececec;
+}
+.btnActive {
+  background: #333;
+  color: #fff;
+  border-color: #333;
+}
+.select {
+  font: inherit;
+  font-size: 12px;
+  padding: 1px 4px;
+  border: 1px solid #c4c4c4;
+  border-radius: 4px;
+  background: #fff;
+}
+.label {
+  font-size: 12px;
+  color: #444;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  font-size: 11px;
+  color: #333;
+  padding: 2px 10px 4px;
+  align-items: center;
+}
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: default;
+}
+.legendItem:hover {
+  text-decoration: underline;
+}
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+  flex: none;
+}
+.tooltip {
+  position: fixed;
+  pointer-events: none;
+  background: #fff;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-size: 12px;
+  line-height: 1.35;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  z-index: 50;
+  max-width: 280px;
+}
+.muted {
+  color: #777;
+}
+.empty {
+  padding: 16px;
+  color: #666;
+  font-size: 13px;
+}
+.warn {
+  color: #8a5a00;
+  font-size: 11px;
+}
+.axis text {
+  font-size: 10px;
+  fill: #555;
+}
+.axis path,
+.axis line {
+  stroke: #bbb;
+}
+.axisLabel {
+  font-size: 11px;
+  fill: #333;
+}
+.btnActive:hover {
+  background: #111;
+}
+.btn {
+  white-space: nowrap;
+}
