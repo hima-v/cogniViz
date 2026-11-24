@@ -16,8 +16,13 @@ from config import CFG, DATA_DIR, DETAILS_DIR, THUMBS_DIR
 from stats import compare_groups
 
 app = FastAPI(title="PMSV explorer API")
-app.add_middleware(CORSMiddleware, allow_origins=CFG["cors_origins"], allow_methods=["*"], allow_headers=["*"],
-                   expose_headers=["Content-Range", "Accept-Ranges", "Content-Length"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1):\d+",
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["Content-Range", "Accept-Ranges", "Content-Length"],
+)
 
 ID_RE = re.compile(r"^\d+_\d+$")
 
