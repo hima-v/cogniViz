@@ -42,6 +42,16 @@ export function Header() {
   const setF = (patch: Partial<Filters>) => dispatch({ type: "filters", patch });
   const mse = (vs: typeof filtered) => (vs.length ? d3.mean(vs, (v) => v.sq_err)! : NaN);
   const filtersActive = JSON.stringify(f) !== JSON.stringify(DEFAULT_FILTERS);
+  // Full text for the tooltips, since the header lines are truncated to keep its height fixed.
+  const countsText =
+    `${filtered.length} of ${videos.length} videos shown` +
+    (hasSelection ? ` · ${selected.length} selected` : "") +
+    (st.pinnedGroupA ? ` · group A pinned (${st.pinnedGroupA.length})` : "");
+  const mseText =
+    `Model error (CV MSE): all ${fmt(meta.cv_mse, 3)}` +
+    (filtersActive ? ` · shown ${fmt(mse(filtered), 3)}` : "") +
+    (hasSelection ? ` · selection ${fmt(mse(selected), 3)} (n = ${selected.length})` : "") +
+    ". Mean squared error of out-of-fold predictions; lower is better.";
 
   return (
     <header className={css.header}>
@@ -50,7 +60,7 @@ export function Header() {
         <span className={ui.muted}> · sensation ratings of 1,200 Instagram Reels</span>
       </div>
       <div className={css.stats}>
-        <span>
+        <span title={countsText}>
           <b>{filtered.length}</b> of {videos.length} videos shown
           {hasSelection && (
             <>
@@ -60,7 +70,7 @@ export function Header() {
           )}
           {st.pinnedGroupA && <> · group A pinned ({st.pinnedGroupA.length})</>}
         </span>
-        <span title="Mean squared error of out-of-fold predictions; lower is better">
+        <span title={mseText}>
           Model error (CV MSE): all {fmt(meta.cv_mse, 3)}
           {filtersActive && <> · shown {fmt(mse(filtered), 3)}</>}
           {hasSelection && (
