@@ -6,7 +6,7 @@ import { useAppState, useData, useDispatch } from "../state";
 import type { ClusterRow } from "../types";
 import css from "./Clusters.module.css";
 
-type SortKey = "cluster" | "n" | "mean_rating" | "mse" | "pct_popular" | "label";
+type SortKey = "cluster" | "n" | "mean_rating" | "mse" | "pct_popular" | "label" | "selected_share";
 const Z_MAX = 1.5;
 const GLYPH_BAR = 6;
 const GLYPH_GAP = 1;
@@ -15,12 +15,16 @@ const GROUP_GAP = 5;
 export function Clusters() {
   const st = useAppState();
   const dispatch = useDispatch();
-  const { meta, filtered } = useData();
+  const { meta, filtered, selected, hasSelection } = useData();
   const [sort, setSort] = useState<{ key: SortKey; desc: boolean }>({ key: "n", desc: true });
   const table = meta.clusters[String(st.k)];
+  // Cluster counts are fixed on all 1,200 videos; only the selected count is live.
+  const selCount = d3.rollup(selected, (vs) => vs.length, (v) => v.cluster[String(st.k)]);
+  const selShare = (c: ClusterRow) => (selCount.get(c.cluster) ?? 0) / c.n;
+  const sortKey: SortKey = sort.key === "selected_share" && !hasSelection ? "n" : sort.key;
   const rows = [...table.clusters].sort((a, b) => {
-    const va = a[sort.key];
-    const vb = b[sort.key];
+    const va = sortKey === "selected_share" ? selShare(a) : a[sortKey];
+    const vb = sortKey === "selected_share" ? selShare(b) : b[sortKey];
     const c = typeof va === "string" ? va.localeCompare(vb as string) : (va as number) - (vb as number);
     return sort.desc ? -c : c;
   });
@@ -72,8 +76,9 @@ export function Clusters() {
         <SourceLine
           parts={[
             { id: "our_analysis", text: "our k-means clusters" },
-            { id: "authors_features", text: "authors' features they are fit on (all 1,200 videos)" },
+            { id: "authors_features", text: "authors' features they are fit on" },
           ]}
+          coverage={`counts cover all ${meta.n_videos.toLocaleString()} videos; selected share is live`}
         />
       }
     >
@@ -127,6 +132,7 @@ export function Clusters() {
             {head("mse", "MSE", "Out-of-fold model error (MSE) within the cluster; tick = overall")}
             <th>Issues</th>
             {head("pct_popular", "Popular", "% of videos from popular accounts")}
+            {hasSelection && head("selected_share", "Selected", "Selected videos in each cluster, as a share of the cluster")}
           </tr>
         </thead>
         <tbody>
@@ -147,9 +153,9 @@ export function Clusters() {
                   <span>{c.label}</span>
                 </td>
                 <td>
-                  <svg width={40} height={14}>
-                    <rect width={(c.n / maxN) * 16} height={8} y={3} rx={2} fill="#888" />
-                    <text x={19} y={11} fontSize={10.5} fill="#333">
+                  <svg width={36} height={14}>
+                    <rect width={(c.n / maxN) * 14} height={8} y={3} rx={2} fill="#888" />
+                    <text x={16} y={11} fontSize={10.5} fill="#333">
                       {c.n}
                     </text>
                   </svg>
@@ -196,11 +202,11 @@ export function Clusters() {
                   </svg>
                 </td>
                 <td>
-                  <svg width={50} height={12}>
+                  <svg width={46} height={12}>
                     {(() => {
                       let x = 0;
                       return ISSUE_ORDER.map((i) => {
-                        const w = c.issue_mix[i] * 50;
+                        const w = c.issue_mix[i] * 46;
                         const r = (
                           <rect key={i} x={x} width={Math.max(0, w - 1)} height={10} y={1} fill={issueColor(i)}>
                             <title>
@@ -215,6 +221,18 @@ export function Clusters() {
                   </svg>
                 </td>
                 <td className={css.num}>{(c.pct_popular * 100).toFixed(0)}%</td>
+                {hasSelection && (
+                  <td title={`${selCount.get(c.cluster) ?? 0} selected (${Math.round(selShare(c) * 100)}% of this cluster's ${c.n} videos)`}>
+                    <div className={css.selText}>{selCount.get(c.cluster) ?? 0} selected</div>
+                    <div className={css.selText}>
+                      <svg width={20} height={10} style={{ verticalAlign: "middle" }}>
+                        <rect width={20} height={7} y={2} rx={2} fill="#e6e6e6" />
+                        <rect width={selShare(c) * 20} height={7} y={2} rx={2} fill="#555" />
+                      </svg>{" "}
+                      ({Math.round(selShare(c) * 100)}%)
+                    </div>
+                  </td>
+                )}
               </tr>
             );
           })}
