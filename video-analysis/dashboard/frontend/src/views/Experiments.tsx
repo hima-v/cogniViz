@@ -65,7 +65,7 @@ function aggregate(rows: ExperimentRow[]): Agg[] {
 function DotPlot({ title, rows, baseline, x, width, paired }: { title: string; rows: Agg[]; baseline: Agg | undefined; x: d3.ScaleLinear<number, number>; width: number; paired: boolean }) {
   const L = 210;
   const RH = 16;
-  const H = rows.length * RH + 34;
+  const H = rows.length * RH + 52;
   const y = (i: number) => 22 + i * RH + RH / 2;
   const idx = new Map(rows.map((r, i) => [r.condition, i]));
   return (
@@ -76,15 +76,18 @@ function DotPlot({ title, rows, baseline, x, width, paired }: { title: string; r
       <g transform={`translate(${L},0)`}>
         {x.ticks(6).map((t) => (
           <g key={t} transform={`translate(${x(t)},0)`}>
-            <line y1={18} y2={H - 14} stroke="#f0f0f0" />
-            <text y={H - 3} fontSize={9.5} textAnchor="middle" fill="#666">
+            <line y1={18} y2={H - 32} stroke="#f0f0f0" />
+            <text y={H - 21} fontSize={9.5} textAnchor="middle" fill="#666">
               {t.toFixed(2)}
             </text>
           </g>
         ))}
+        <text x={(x.range()[0] + x.range()[1]) / 2} y={H - 5} fontSize={10.5} textAnchor="middle" fill="#333">
+          Cross-validated error (MSE), lower is better
+        </text>
         {baseline && (
           <g>
-            <line x1={x(baseline.mean)} x2={x(baseline.mean)} y1={16} y2={H - 14} stroke="#000" strokeDasharray="4 3" />
+            <line x1={x(baseline.mean)} x2={x(baseline.mean)} y1={16} y2={H - 32} stroke="#000" strokeDasharray="4 3" />
             <text x={x(baseline.mean) + 3} y={16} fontSize={9} fill="#333">
               baseline {fmt(baseline.mean, 3)}
             </text>
