@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { thumbUrl } from "../api";
 import { Panel, SourceLine, ui } from "../components/ui";
-import { RATING_TARGETS, fmt, issueColor, ratingColor, ratingOf } from "../encodings";
+import { ISSUE_ORDER, RATING_TARGETS, fmt, issueColor, ratingColor, ratingOf } from "../encodings";
 import { useAppState, useData, useDispatch } from "../state";
 import type { SampleSort, Video } from "../types";
 import css from "./Samples.module.css";
@@ -74,12 +74,23 @@ export function Samples() {
         />
       }
     >
-      <div ref={scroller} className={css.row}>
-        {sorted.slice(0, limit).map((v) => (
-          <Tile key={v.id} v={v} hovered={st.hoveredId === v.id} focused={st.focusedId === v.id} issue={meta.issues[v.issue]} />
-        ))}
-        {limit < sorted.length && <div ref={sentinel} className={css.sentinel} />}
-        {sorted.length === 0 && <div className={ui.empty}>No videos match the filters.</div>}
+      <div className={css.body}>
+        <div className={`${ui.legend} ${css.legend}`}>
+          <span>Bar under each video = issue:</span>
+          {ISSUE_ORDER.map((i) => (
+            <span key={i} className={ui.legendItem}>
+              <span className={css.legendBar} style={{ background: issueColor(i) }} />
+              {meta.issues[i]}
+            </span>
+          ))}
+        </div>
+        <div ref={scroller} className={css.row}>
+          {sorted.slice(0, limit).map((v) => (
+            <Tile key={v.id} v={v} hovered={st.hoveredId === v.id} focused={st.focusedId === v.id} issue={meta.issues[v.issue]} />
+          ))}
+          {limit < sorted.length && <div ref={sentinel} className={css.sentinel} />}
+          {sorted.length === 0 && <div className={ui.empty}>No videos match the filters.</div>}
+        </div>
       </div>
     </Panel>
   );

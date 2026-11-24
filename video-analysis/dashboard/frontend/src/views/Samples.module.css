@@ -3,12 +3,29 @@
   color: #555;
   font-size: 12px;
 }
+.body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.legend {
+  padding-top: 0;
+  padding-bottom: 3px;
+  flex: none;
+}
+.legendBar {
+  width: 14px;
+  height: 5px;
+  border-radius: 1px;
+  display: inline-block;
+}
 .row {
   display: flex;
   gap: 6px;
   overflow-x: auto;
   overflow-y: hidden;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   padding: 0 8px 4px;
   align-items: stretch;
 }
