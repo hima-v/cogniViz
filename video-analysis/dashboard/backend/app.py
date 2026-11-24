@@ -1,4 +1,5 @@
 """Dashboard API. Run: uvicorn app:app --port 8000 (from backend/)."""
+
 from __future__ import annotations
 
 import json
@@ -44,6 +45,7 @@ def compare_table() -> pd.DataFrame:
 @lru_cache
 def _video_paths_from_inventory() -> dict[str, str]:
     from config import path
+
     inv = path(CFG["pipeline"]["inventory"])
     if not inv.exists():
         return {}
@@ -117,13 +119,17 @@ def media(vid: str, request: Request):
     size = Path(p).stat().st_size
     rng = request.headers.get("range")
     if not rng:
-        return FileResponse(p, media_type="video/mp4", headers={"Accept-Ranges": "bytes"})
+        return FileResponse(
+            p, media_type="video/mp4", headers={"Accept-Ranges": "bytes"}
+        )
     m = re.match(r"bytes=(\d*)-(\d*)", rng)
     if not m:
         raise HTTPException(416)
     start = int(m.group(1)) if m.group(1) else max(0, size - int(m.group(2)))
     end = int(m.group(2)) if m.group(1) and m.group(2) else size - 1
-    end = min(end, size - 1, start + 2 * 1024 * 1024 - 1)  # serve at most 2 MB per request
+    end = min(
+        end, size - 1, start + 2 * 1024 * 1024 - 1
+    )  # serve at most 2 MB per request
     if start > end:
         return Response(status_code=416, headers={"Content-Range": f"bytes */{size}"})
 
@@ -138,8 +144,16 @@ def media(vid: str, request: Request):
                 left -= len(buf)
                 yield buf
 
-    return StreamingResponse(chunks(), status_code=206, media_type="video/mp4", headers={
-        "Content-Range": f"bytes {start}-{end}/{size}", "Accept-Ranges": "bytes", "Content-Length": str(end - start + 1)})
+    return StreamingResponse(
+        chunks(),
+        status_code=206,
+        media_type="video/mp4",
+        headers={
+            "Content-Range": f"bytes {start}-{end}/{size}",
+            "Accept-Ranges": "bytes",
+            "Content-Length": str(end - start + 1),
+        },
+    )
 
 
 @app.get("/thumbs/{vid}/{pos}")
@@ -149,4 +163,6 @@ def thumb(vid: str, pos: int):
     p = THUMBS_DIR / f"{_check_id(vid)}_{pos}.jpg"
     if not p.exists():
         raise HTTPException(404, "no thumbnail")
-    return FileResponse(p, media_type="image/jpeg", headers={"Cache-Control": "max-age=86400"})
+    return FileResponse(
+        p, media_type="image/jpeg", headers={"Cache-Control": "max-age=86400"}
+    )
