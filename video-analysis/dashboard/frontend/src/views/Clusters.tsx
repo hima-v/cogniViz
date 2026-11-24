@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Panel, SourceLine, ui } from "../components/ui";
 import { ISSUE_ORDER, clusterColor, fmt, issueColor } from "../encodings";
 import { useAppState, useData, useDispatch } from "../state";
@@ -37,7 +37,7 @@ export function Clusters() {
   const rx = d3.scaleLinear().domain([1, 7]).range([4, 52]);
   const selectCluster = (c: ClusterRow) =>
     dispatch({ type: "select", ids: filtered.filter((v) => v.cluster[String(st.k)] === c.cluster).map((v) => v.id) });
-  const head = (key: SortKey, label: string, title?: string) => (
+  const head = (key: SortKey, label: string, title?: string, extra?: ReactNode) => (
     <th
       className={css.sortable}
       title={title ?? `Sort by ${label}`}
@@ -46,6 +46,7 @@ export function Clusters() {
     >
       {label}
       {sort.key === key ? (sort.desc ? " ▾" : " ▴") : ""}
+      {extra}
     </th>
   );
   // group separators for the glyph legend
@@ -76,6 +77,15 @@ export function Clusters() {
         />
       }
     >
+      <div className={ui.legend}>
+        <span>Issues bar:</span>
+        {ISSUE_ORDER.map((i) => (
+          <span key={i} className={ui.legendItem}>
+            <span className={ui.swatch} style={{ background: issueColor(i) }} />
+            {meta.issues[i]}
+          </span>
+        ))}
+      </div>
       <table className={css.table}>
         <thead>
           <tr>
@@ -98,7 +108,22 @@ export function Clusters() {
                 </text>
               </svg>
             </th>
-            {head("mean_rating", "Rating (CI)", "Mean rating with 95% CI on a 1–7 axis")}
+            {head(
+              "mean_rating",
+              "Rating (CI)",
+              "Mean rating with 95% CI on a 1–7 axis",
+              <svg width={56} height={16} style={{ display: "block", marginLeft: -1 }} aria-label="Rating axis, 1 to 7">
+                <line x1={rx(1)} x2={rx(7)} y1={11} y2={11} stroke="#bbb" />
+                {[1, 2, 3, 4, 5, 6, 7].map((v) => (
+                  <line key={v} x1={rx(v)} x2={rx(v)} y1={v % 3 === 1 ? 8 : 9.5} y2={11} stroke="#999" />
+                ))}
+                {[1, 4, 7].map((v) => (
+                  <text key={v} x={rx(v)} y={7} fontSize={8} textAnchor="middle" fill="#666">
+                    {v}
+                  </text>
+                ))}
+              </svg>,
+            )}
             {head("mse", "MSE", "Out-of-fold model error (MSE) within the cluster; tick = overall")}
             <th>Issues</th>
             {head("pct_popular", "Popular", "% of videos from popular accounts")}
