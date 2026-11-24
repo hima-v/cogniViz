@@ -19,7 +19,6 @@ pipeline:
 videos_dir: C:/Users/hima2/Box/Video Data Analytics Reels Data
 # Generated artifacts (gitignored)
 data_dir: video-analysis/dashboard/backend/data
-cors_origins: ["http://localhost:5173", "http://127.0.0.1:5173"]
 # Column roles in the share CSV
 columns:
   key: survey_batch_id
